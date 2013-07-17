@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>using ivy</title>
     <meta name="description" content="">
-    <meta name="author" content="Name Lastname">
+    <meta name="author" content="shinohara wataru">
 
     <!-- Enable responsive viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +18,7 @@
     <!-- Le styles -->
     <link href="/assets/themes/twitter/bootstrap/css/bootstrap.2.2.2.min.css" rel="stylesheet">
     <link href="/assets/themes/twitter/css/style.css?body=1" rel="stylesheet" type="text/css" media="all">
-
+    <link href="/assets/themes/twitter/css/colorful.css" rel="stylesheet" type="text/css" >
     <!-- Le fav and touch icons -->
   <!-- Update these with your own images
     <link rel="shortcut icon" href="images/favicon.ico">
@@ -37,7 +37,7 @@
     <div class="navbar">
       <div class="navbar-inner">
         <div class="container-narrow">
-          <a class="brand" href="/">Jekyll Bootstrap</a>
+          <a class="brand" href="/">zentai</a>
           <ul class="nav">
             
             
@@ -127,72 +127,85 @@
       <span>17 July 2013</span>
     </div>
     <div class="content">
-      <h1 id='_apache_ivy_'>依存関係の解決に apache ivy を使う</h1>
+      <h1>依存関係の解決に apache ivy を使う</h1>
 
-<h2 id='id1'>恐怖、ビルドの仕組みがないプロジェクト</h2>
+<h2>恐怖、ビルドの仕組みがないプロジェクト</h2>
 
-<p>とあるJavaでできたバッチ処理プロジェクトがあったのだが今までビルドの仕組みがなかった。 開発者が各々開発環境のeclipseでビルドをして生成されたクラスファイルを本番サーバにscpしていた。 ちょっとこれは恐ろしいことなので、 レポジトリがCVSからGitに移行したタイミングで仕組みを変更することにした。</p>
+<p>とあるJavaでできたバッチ処理プロジェクトがあったのだが今までビルドの仕組みがなかった。
+開発者が各々開発環境のeclipseでビルドをして生成されたクラスファイルを本番サーバにscpしていた。
+ちょっとこれは恐ろしいことなので、
+レポジトリがCVSからGitに移行したタイミングで仕組みを変更することにした。  </p>
 
-<p>基本どの処理もcronで時間を指定してその中からJavaを実行するというものだった。 ディレクトリ構造を変更するのが負担になると考えたので、maven化はアウト。 ディレクトリ構造を現状の状態に保ったまま依存関係のあるjarをもってくることがやりたかったのでivyを採用。</p>
+<p>基本どの処理もcronで時間を指定してその中からJavaを実行するというものだった。
+ディレクトリ構造を変更するのが負担になると考えたので、maven化はアウト。
+ディレクトリ構造を現状の状態に保ったまま依存関係のあるjarをもってくることがやりたかったのでivyを採用。</p>
 
-<h2 id='maven'>mavenと比べてよかったところ</h2>
+<h2>mavenと比べてよかったところ</h2>
 
-<p>1. 記述が少ない<br />2. ディレクトリ構造が自由<br />3. antの依存関係だけを解決する仕組みなので好きなターゲットを作成できる。<br />というかんじ。</p>
+<ol>
+<li>記述が少ない<br></li>
+<li>ディレクトリ構造が自由<br></li>
+<li>antの依存関係だけを解決する仕組みなので好きなターゲットを作成できる。<br>
+というかんじ。<br></li>
+</ol>
 
-<h2 id='jenkins'>Jenkinsサーバの設定</h2>
+<h2>Jenkinsサーバの設定</h2>
 
-<p>どうせだからJenkinsにビルドとリリースをお任せする。<br />CentOSに標準のJenkins入れてant1.8が入っている状況だと<br /> /usr/local/ant<br />がantのディレクトリなので<br />http://ant.apache.org/ivy/download.cgi<br />上記のページから適当なバイナリをダウンロードしてファイルを展開したらivy-*.jarを<br /> /usr/local/ant/lib<br />配下に入れる。これでantからivyを呼ぶことができる。</p>
+<p>どうせだからJenkinsにビルドとリリースをお任せする。<br>
+CentOSに標準のJenkins入れてant1.8が入っている状況だと  </p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">/usr/local/ant
+</code></pre></div>
+<p>がantのディレクトリなので
+<a href="http://ant.apache.org/ivy/download.cgi">http://ant.apache.org/ivy/download.cgi</a><br>
+上記のページから適当なバイナリをダウンロードしてファイルを展開したらivy-*.jarを  </p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">/usr/local/ant/lib
+</code></pre></div>
+<p>配下に入れる。これでantからivyを呼ぶことができる。</p>
 
-<h2 id='id2'>使い方</h2>
+<h2>使い方</h2>
 
-<p>サンプルの丸パクリだけどbuild.xmlに <code>text
-    &lt;project name=&quot;batch&quot; default=&quot;compile&quot; xmlns:ivy=&quot;antlib:org.apache.ivy.ant&quot;&gt;
-</code></p>
-
+<p>サンプルの丸パクリだけどbuild.xmlに</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;project name=&quot;batch&quot; default=&quot;compile&quot; xmlns:ivy=&quot;antlib:org.apache.ivy.ant&quot;&gt;
+</code></pre></div>
 <p>プロジェクト名をきめるところにxmlns:ivy=を記述する。</p>
-
-<p><code>text
-    &lt;target name=&quot;resolve&quot; description=&quot;--&gt; retreive dependencies with ivy&quot;&gt;
-        &lt;ivy:retrieve/&gt;
-    &lt;/target&gt;
-</code></p>
-
+<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;target name=&quot;resolve&quot; description=&quot;--&gt; retreive dependencies with ivy&quot;&gt;
+    &lt;ivy:retrieve/&gt;
+&lt;/target&gt;
+</code></pre></div>
 <p>resolveってターゲットを作成して</p>
-
-<p><code>text
-    &lt;target name=&quot;compile&quot; depends=&quot;resolve&quot; description=&quot;--&gt; compile the project&quot;&gt;
-      ...
-    &lt;/target&gt;
-</code></p>
-
-<p>こんなかんじで各ターゲットにdepends=&#8221;resolve&#8221;と書いてあげるとターゲットが実行される際にivyの依存解決が動作する。 依存するモジュールはivy.xmlというファイルを作成して、中身を</p>
-
-<p><code>text
-    &lt;ivy-module version=&quot;2.0&quot;&gt;
-        &lt;info organisation=&quot;jp.ameba&quot; module=&quot;official-batch&quot;/&gt;
-        &lt;dependencies&gt;
-            &lt;dependency org=&quot;commons-codec&quot; name=&quot;commons-codec&quot; rev=&quot;1.3&quot;/&gt;
-            &lt;dependency org=&quot;commons-lang&quot; name=&quot;commons-lang&quot; rev=&quot;2.3&quot;/&gt;
-            ...
-        &lt;/dependencies&gt;
-    &lt;/ivy-module&gt;
-</code></p>
-
-<p>dependenciesの子にdependencyという要素を追記していく。 orgがmavenでいうところのgroupIdでnameがartifactId、revがversionに対応する。 今回のプロジェクトはSeasar2を使っていたので中央レポジトリ以外の箇所も見る必要がある。 そんなときはivysettings.xmlというファイルを作成して <code>text
-    &lt;ivysettings&gt;
-        &lt;settings defaultResolver=&quot;chained&quot;/&gt;
-        &lt;resolvers&gt;
-            &lt;chain name=&quot;chained&quot; returnFirst=&quot;true&quot;&gt;
-                &lt;ibiblio name=&quot;seasar&quot; m2compatible=&quot;true&quot; root=&quot;http://maven.seasar.org/maven2/&quot; /&gt;
-                &lt;ibiblio name=&quot;ibiblio&quot; m2compatible=&quot;true&quot;/&gt;
-            &lt;/chain&gt;
-        &lt;/resolvers&gt;
-    &lt;/ivysettings&gt;
-</code></p>
-
+<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;target name=&quot;compile&quot; depends=&quot;resolve&quot; description=&quot;--&gt; compile the project&quot;&gt;
+...
+&lt;/target&gt;
+</code></pre></div>
+<p>こんなかんじで各ターゲットにdepends=&quot;resolve&quot;と書いてあげるとターゲットが実行される際にivyの依存解決が動作する。
+依存するモジュールはivy.xmlというファイルを作成して、中身を</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;ivy-module version=&quot;2.0&quot;&gt;
+    &lt;info organisation=&quot;jp.ameba&quot; module=&quot;official-batch&quot;/&gt;
+    &lt;dependencies&gt;
+        &lt;dependency org=&quot;commons-codec&quot; name=&quot;commons-codec&quot; rev=&quot;1.3&quot;/&gt;
+        &lt;dependency org=&quot;commons-lang&quot; name=&quot;commons-lang&quot; rev=&quot;2.3&quot;/&gt;
+        ...
+    &lt;/dependencies&gt;
+&lt;/ivy-module&gt;
+</code></pre></div>
+<p>dependenciesの子にdependencyという要素を追記していく。
+orgがmavenでいうところのgroupIdでnameがartifactId、revがversionに対応する。
+今回のプロジェクトはSeasar2を使っていたので中央レポジトリ以外の箇所も見る必要がある。
+そんなときはivysettings.xmlというファイルを作成して</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;ivysettings&gt;
+    &lt;settings defaultResolver=&quot;chained&quot;/&gt;
+    &lt;resolvers&gt;
+        &lt;chain name=&quot;chained&quot; returnFirst=&quot;true&quot;&gt;
+            &lt;ibiblio name=&quot;seasar&quot; m2compatible=&quot;true&quot; root=&quot;http://maven.seasar.org/maven2/&quot; /&gt;
+            &lt;ibiblio name=&quot;ibiblio&quot; m2compatible=&quot;true&quot;/&gt;
+        &lt;/chain&gt;
+    &lt;/resolvers&gt;
+&lt;/ivysettings&gt;
+</code></pre></div>
 <p>resolvers-&gt;chain-&gt;ibiblioという要素を追記してあげるとそっちのレポジトリも見てくれる。</p>
 
 <p>結論としてはmavenにするのはコストがかかるし、ダルいなというときに依存関係解決だけに機能をしぼってantとミックスして使うのはありだと思う。</p>
+
     </div>
 
     
@@ -260,7 +273,7 @@
       </div>
       <hr>
       <footer>
-        <p>&copy; 2013 Name Lastname
+        <p>&copy; 2013 shinohara wataru
           with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
           and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
         </p>
