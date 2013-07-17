@@ -5,10 +5,91 @@
         <description>Jekyll Bootstrap - Name Lastname</description>
         <link>http://username.github.io</link>
         <link>http://username.github.io</link>
-        <lastBuildDate>2013-07-17T14:54:11+09:00</lastBuildDate>
-        <pubDate>2013-07-17T14:54:11+09:00</pubDate>
+        <lastBuildDate>2013-07-17T15:06:29+09:00</lastBuildDate>
+        <pubDate>2013-07-17T15:06:29+09:00</pubDate>
         <ttl>1800</ttl>
 
+
+        <item>
+                <title>using ivy</title>
+                <description>&lt;h1 id=&#39;_apache_ivy_&#39;&gt;依存関係の解決に apache ivy を使う&lt;/h1&gt;
+
+&lt;h2 id=&#39;id1&#39;&gt;恐怖、ビルドの仕組みがないプロジェクト&lt;/h2&gt;
+
+&lt;p&gt;とあるJavaでできたバッチ処理プロジェクトがあったのだが今までビルドの仕組みがなかった。 開発者が各々開発環境のeclipseでビルドをして生成されたクラスファイルを本番サーバにscpしていた。 ちょっとこれは恐ろしいことなので、 レポジトリがCVSからGitに移行したタイミングで仕組みを変更することにした。&lt;/p&gt;
+
+&lt;p&gt;基本どの処理もcronで時間を指定してその中からJavaを実行するというものだった。 ディレクトリ構造を変更するのが負担になると考えたので、maven化はアウト。 ディレクトリ構造を現状の状態に保ったまま依存関係のあるjarをもってくることがやりたかったのでivyを採用。&lt;/p&gt;
+
+&lt;h2 id=&#39;maven&#39;&gt;mavenと比べてよかったところ&lt;/h2&gt;
+
+&lt;p&gt;1. 記述が少ない&lt;br /&gt;2. ディレクトリ構造が自由&lt;br /&gt;3. antの依存関係だけを解決する仕組みなので好きなターゲットを作成できる。&lt;br /&gt;というかんじ。&lt;/p&gt;
+
+&lt;h2 id=&#39;jenkins&#39;&gt;Jenkinsサーバの設定&lt;/h2&gt;
+
+&lt;p&gt;どうせだからJenkinsにビルドとリリースをお任せする。&lt;br /&gt;CentOSに標準のJenkins入れてant1.8が入っている状況だと&lt;br /&gt; /usr/local/ant&lt;br /&gt;がantのディレクトリなので&lt;br /&gt;http://ant.apache.org/ivy/download.cgi&lt;br /&gt;上記のページから適当なバイナリをダウンロードしてファイルを展開したらivy-*.jarを&lt;br /&gt; /usr/local/ant/lib&lt;br /&gt;配下に入れる。これでantからivyを呼ぶことができる。&lt;/p&gt;
+
+&lt;h2 id=&#39;id2&#39;&gt;使い方&lt;/h2&gt;
+
+&lt;p&gt;サンプルの丸パクリだけどbuild.xmlに &lt;code&gt;text
+    &amp;lt;project name=&amp;quot;batch&amp;quot; default=&amp;quot;compile&amp;quot; xmlns:ivy=&amp;quot;antlib:org.apache.ivy.ant&amp;quot;&amp;gt;
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;プロジェクト名をきめるところにxmlns:ivy=を記述する。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;text
+    &amp;lt;target name=&amp;quot;resolve&amp;quot; description=&amp;quot;--&amp;gt; retreive dependencies with ivy&amp;quot;&amp;gt;
+        &amp;lt;ivy:retrieve/&amp;gt;
+    &amp;lt;/target&amp;gt;
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;resolveってターゲットを作成して&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;text
+    &amp;lt;target name=&amp;quot;compile&amp;quot; depends=&amp;quot;resolve&amp;quot; description=&amp;quot;--&amp;gt; compile the project&amp;quot;&amp;gt;
+      ...
+    &amp;lt;/target&amp;gt;
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;こんなかんじで各ターゲットにdepends=&amp;#8221;resolve&amp;#8221;と書いてあげるとターゲットが実行される際にivyの依存解決が動作する。 依存するモジュールはivy.xmlというファイルを作成して、中身を&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;text
+    &amp;lt;ivy-module version=&amp;quot;2.0&amp;quot;&amp;gt;
+        &amp;lt;info organisation=&amp;quot;jp.ameba&amp;quot; module=&amp;quot;official-batch&amp;quot;/&amp;gt;
+        &amp;lt;dependencies&amp;gt;
+            &amp;lt;dependency org=&amp;quot;commons-codec&amp;quot; name=&amp;quot;commons-codec&amp;quot; rev=&amp;quot;1.3&amp;quot;/&amp;gt;
+            &amp;lt;dependency org=&amp;quot;commons-lang&amp;quot; name=&amp;quot;commons-lang&amp;quot; rev=&amp;quot;2.3&amp;quot;/&amp;gt;
+            ...
+        &amp;lt;/dependencies&amp;gt;
+    &amp;lt;/ivy-module&amp;gt;
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;dependenciesの子にdependencyという要素を追記していく。 orgがmavenでいうところのgroupIdでnameがartifactId、revがversionに対応する。 今回のプロジェクトはSeasar2を使っていたので中央レポジトリ以外の箇所も見る必要がある。 そんなときはivysettings.xmlというファイルを作成して &lt;code&gt;text
+    &amp;lt;ivysettings&amp;gt;
+        &amp;lt;settings defaultResolver=&amp;quot;chained&amp;quot;/&amp;gt;
+        &amp;lt;resolvers&amp;gt;
+            &amp;lt;chain name=&amp;quot;chained&amp;quot; returnFirst=&amp;quot;true&amp;quot;&amp;gt;
+                &amp;lt;ibiblio name=&amp;quot;seasar&amp;quot; m2compatible=&amp;quot;true&amp;quot; root=&amp;quot;http://maven.seasar.org/maven2/&amp;quot; /&amp;gt;
+                &amp;lt;ibiblio name=&amp;quot;ibiblio&amp;quot; m2compatible=&amp;quot;true&amp;quot;/&amp;gt;
+            &amp;lt;/chain&amp;gt;
+        &amp;lt;/resolvers&amp;gt;
+    &amp;lt;/ivysettings&amp;gt;
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;resolvers-&amp;gt;chain-&amp;gt;ibiblioという要素を追記してあげるとそっちのレポジトリも見てくれる。&lt;/p&gt;
+
+&lt;p&gt;結論としてはmavenにするのはコストがかかるし、ダルいなというときに依存関係解決だけに機能をしぼってantとミックスして使うのはありだと思う。&lt;/p&gt;</description>
+                <link>http://username.github.io/2013/07/17/using-ivy</link>
+                <guid>http://username.github.io/2013/07/17/using-ivy</guid>
+                <pubDate>2013-07-17T00:00:00+09:00</pubDate>
+        </item>
+
+        <item>
+                <title>Hello World</title>
+                <description>&lt;p&gt;jekyllのテストを書く。&lt;/p&gt;</description>
+                <link>http://username.github.io/2013/07/17/hello-world</link>
+                <guid>http://username.github.io/2013/07/17/hello-world</guid>
+                <pubDate>2013-07-17T00:00:00+09:00</pubDate>
+        </item>
 
         <item>
                 <title>Jekyll Introduction</title>
