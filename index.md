@@ -6,3 +6,7 @@ layout: default
     <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></li>
   {% endfor %}
 </ul>
+
+{% include JB/setup %}
+
+{% assign posts_collate = site.posts %}
