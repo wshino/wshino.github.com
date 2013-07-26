@@ -11,6 +11,8 @@ http://wshino.github.io/rss.xml
 http://wshino.github.io/sitemap.txt
 http://wshino.github.io/tags.html
 
+http://wshino.github.io/2013/07/26/playslick
+http://wshino.github.io/2013/07/24/githubio-
 http://wshino.github.io/2013/07/17/using-ivy
 http://wshino.github.io/2013/07/17/hello-world
 http://wshino.github.io/lessons/2011/12/29/jekyll-introduction

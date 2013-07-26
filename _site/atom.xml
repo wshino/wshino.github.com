@@ -4,13 +4,87 @@
  <title>zentai</title>
  <link href="http://wshino.github.io/" rel="self"/>
  <link href="http://wshino.github.io"/>
- <updated>2013-07-17T17:09:08+09:00</updated>
+ <updated>2013-07-26T18:36:32+09:00</updated>
  <id>http://wshino.github.io</id>
  <author>
    <name>shinohara wataru</name>
    <email></email>
  </author>
 
+ 
+ <entry>
+   <title>Play+Slick雑感</title>
+   <link href="http://wshino.github.io/2013/07/26/playslick"/>
+   <updated>2013-07-26T00:00:00+09:00</updated>
+   <id>http://wshino.github.io/2013/07/26/playslick</id>
+   <content type="html">&lt;h2&gt;playframeworkでcommon-apiを作ってた感想。&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;採用理由&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;具体的にはファイル渡しをしているところを全部APIで叩いてもらえますように、という作りを目指した。
+各webサーバーのバックグラウンドにjavaがあるのが嫌だったので HTML + JS + CSS + etc でwebサービスを作れるようにしたかった。
+部署的に基本どのユーザーへも同じような情報を表示しているのでこれでもぜんぜんいけるじゃね？と思って。
+フレームワークはPlayframeworkを採用した。理由は使っていたから、とキャッチアップしていきたかったから。
+高負荷でのパフォーマンスはかなり良い、との前評判があったから。
+逆に懸念点としてはキャッチアップするのが大変、マイナーバージョンが上がりすぎる、
+release candidateがすぐさま出る。という悲惨さがあった。
+もうなくなるらしいけど2系で採用されている標準ormのanormというものがだめすぎるという話はよく聞いていたし、
+ちょっと不安でしたけどまあscalaで書けるんだしやってみよっかなというくらいののりで。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;akkaのチューニングがよくわからん&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;これはいまだにわからない。
+タイムアウトを3秒にして3秒以内に返せるようにした。
+レスポンスをはやくするためにactorを超いっぱいにしてみたりとかがんばってみたけど
+もちろん十二分に速いけどそこまでCPU負荷があがっているわけでもない。
+負荷のかけかたがゆるかったのかもしれないけどそれもよくわからなかった。
+まだ検証の余地がある。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;超楽&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;前回適当な管理ツールを作成したときにplay+slickに慣れていたこともあったので
+なれたものだった。ちょっとはまったところとしてはslickでjodatimeを使うようにしたのだが、
+jodatimeだとslickのqueryをつかってbetweenが組み立てられないということだった。
+そこは仕方なく変換をかまして以前同様のjava.sql.Timestampを使うことにした。(ださい)
+今後の課題としてjodatimeで問題なく使えるような方法を探してみる。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;モジュールの切り方でなんか失敗した&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;モジュールを分けるように設計してみた。
+    core &amp;lt;- モデル層やサービス層やら
+    batch &amp;lt;- quartz で実行されるジョブクラス、ジョブを手動実行するコントローラー
+    api &amp;lt;- api側のコントローラー
+というふうにしてみたのだが、よくわかってなかったから
+module配下の各プロジェクトにglobalを用意してしまった。
+トップディレクトリのapp配下にもglobalを用意したので競合することとなってしまった。
+結果単体テストがめんどくさくなった。まとめりゃいいだけなんだけど。&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>github.io の使い方</title>
+   <link href="http://wshino.github.io/2013/07/24/githubio-"/>
+   <updated>2013-07-24T00:00:00+09:00</updated>
+   <id>http://wshino.github.io/2013/07/24/githubio-</id>
+   <content type="html">&lt;p&gt;すぐ忘れてしまう。そしてこのまえjekyllコマンドをちゃんと使えるようにしたのに今日動かしたら動かなくなっていた。ローカルでの確認ができない。
+ちーん。&lt;/p&gt;
+
+&lt;p&gt;rake post title=&amp;quot;Hello World&amp;quot;&lt;/p&gt;
+
+&lt;p&gt;ページを作るときは
+rake page name=&amp;quot;about.md&amp;quot;&lt;/p&gt;
+
+&lt;p&gt;うんうん。&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>using ivy</title>
@@ -92,7 +166,7 @@ orgがmavenでいうところのgroupIdでnameがartifactId、revがversionに�
     &amp;lt;/resolvers&amp;gt;
 &amp;lt;/ivysettings&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;resolvers-&amp;gt;chain-&amp;gt;ibiblioという要素を追記してあげるとそっちのレポジトリも見てくれる。&lt;/p&gt;
+&lt;p&gt;resolvers-&gt;chain-&gt;ibiblioという要素を追記してあげるとそっちのレポジトリも見てくれる。&lt;/p&gt;
 
 &lt;p&gt;結論としてはmavenにするのはコストがかかるし、ダルいなというときに依存関係解決だけに機能をしぼってantとミックスして使うのはありだと思う。&lt;/p&gt;
 </content>

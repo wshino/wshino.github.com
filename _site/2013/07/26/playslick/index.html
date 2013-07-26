@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Hello World</title>
+    <title>Play+Slick雑感</title>
     <meta name="description" content="">
     <meta name="author" content="shinohara wataru">
 
@@ -116,16 +116,64 @@
       <div class="content">
         
 <div class="page-header">
-  <h1>Hello World </h1>
+  <h1>Play+Slick雑感 </h1>
 </div>
 
 <div class="row-fluid post-full">
   <div class="span12">
     <div class="date">
-      <span>17 July 2013</span>
+      <span>26 July 2013</span>
     </div>
     <div class="content">
-      <p>jekyllのテストを書く。</p>
+      <h2>playframeworkでcommon-apiを作ってた感想。</h2>
+
+<ul>
+<li>採用理由</li>
+</ul>
+
+<p>具体的にはファイル渡しをしているところを全部APIで叩いてもらえますように、という作りを目指した。
+各webサーバーのバックグラウンドにjavaがあるのが嫌だったので HTML + JS + CSS + etc でwebサービスを作れるようにしたかった。
+部署的に基本どのユーザーへも同じような情報を表示しているのでこれでもぜんぜんいけるじゃね？と思って。
+フレームワークはPlayframeworkを採用した。理由は使っていたから、とキャッチアップしていきたかったから。
+高負荷でのパフォーマンスはかなり良い、との前評判があったから。
+逆に懸念点としてはキャッチアップするのが大変、マイナーバージョンが上がりすぎる、
+release candidateがすぐさま出る。という悲惨さがあった。
+もうなくなるらしいけど2系で採用されている標準ormのanormというものがだめすぎるという話はよく聞いていたし、
+ちょっと不安でしたけどまあscalaで書けるんだしやってみよっかなというくらいののりで。</p>
+
+<ul>
+<li>akkaのチューニングがよくわからん</li>
+</ul>
+
+<p>これはいまだにわからない。
+タイムアウトを3秒にして3秒以内に返せるようにした。
+レスポンスをはやくするためにactorを超いっぱいにしてみたりとかがんばってみたけど
+もちろん十二分に速いけどそこまでCPU負荷があがっているわけでもない。
+負荷のかけかたがゆるかったのかもしれないけどそれもよくわからなかった。
+まだ検証の余地がある。</p>
+
+<ul>
+<li>超楽</li>
+</ul>
+
+<p>前回適当な管理ツールを作成したときにplay+slickに慣れていたこともあったので
+なれたものだった。ちょっとはまったところとしてはslickでjodatimeを使うようにしたのだが、
+jodatimeだとslickのqueryをつかってbetweenが組み立てられないということだった。
+そこは仕方なく変換をかまして以前同様のjava.sql.Timestampを使うことにした。(ださい)
+今後の課題としてjodatimeで問題なく使えるような方法を探してみる。</p>
+
+<ul>
+<li>モジュールの切り方でなんか失敗した</li>
+</ul>
+
+<p>モジュールを分けるように設計してみた。
+    core &lt;- モデル層やサービス層やら
+    batch &lt;- quartz で実行されるジョブクラス、ジョブを手動実行するコントローラー
+    api &lt;- api側のコントローラー
+というふうにしてみたのだが、よくわかってなかったから
+module配下の各プロジェクトにglobalを用意してしまった。
+トップディレクトリのapp配下にもglobalを用意したので競合することとなってしまった。
+結果単体テストがめんどくさくなった。まとめりゃいいだけなんだけど。</p>
 
     </div>
 
@@ -137,11 +185,11 @@
     <div class="pagination">
       <ul>
       
-        <li class="prev"><a href="/lessons/2011/12/29/jekyll-introduction" title="Jekyll Introduction">&larr; Previous</a></li>
+        <li class="prev"><a href="/2013/07/24/githubio-" title="github.io の使い方">&larr; Previous</a></li>
       
         <li><a href="/archive.html">Archive</a></li>
       
-        <li class="next"><a href="/2013/07/17/using-ivy" title="using ivy">Next &rarr;</a></li>
+        <li class="next disabled"><a>Next &rarr;</a>
       
       </ul>
     </div>

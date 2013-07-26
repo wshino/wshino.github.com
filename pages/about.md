@@ -1,6 +1,6 @@
 ---
 layout: page
-title: "About"
+title: "篠原がいろいろやったこととかを書きなぐるページです"
 description: ""
 ---
 {% include JB/setup %}
