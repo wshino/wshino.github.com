@@ -4,6 +4,7 @@ http://wshino.github.io/archive.html
 http://wshino.github.io/atom.xml
 http://wshino.github.io/categories.html
 http://wshino.github.io/index.html
+http://wshino.github.io/index.html
 http://wshino.github.io/pages/about/index.html
 http://wshino.github.io/pages/about.html
 http://wshino.github.io/pages.html
