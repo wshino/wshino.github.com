@@ -13,6 +13,7 @@ PostgreSQLだとplay-sampleがうまく動くんだけどMySQLのときはinsert
 試してみたらそれでいけた。
 
 こんなかんじに書いていたのを
+
 ```scala
 def create(createdAt: DateTime = DateTime.now)(
 implicit session: AsyncDBSession = AsyncDB.sharedSession, cxt: EC = ECGlobal): Future[Log] = {
@@ -26,6 +27,7 @@ implicit session: AsyncDBSession = AsyncDB.sharedSession, cxt: EC = ECGlobal): F
 
 
 こういうふうに変更した。
+
 ```scala
 def create(createdAt: DateTime = DateTime.now) = AsyncDB.localTx { implicit s =>
   for {
@@ -35,6 +37,7 @@ def create(createdAt: DateTime = DateTime.now) = AsyncDB.localTx { implicit s =>
   } yield Log(id = id, createdAt = createdAt)
 }
 ```
+
 試してみたコードはここにアップしといた。
 
 https://github.com/wshino/scalikejdbc-async-mysql
@@ -46,9 +49,12 @@ abの結果を10回取得してみて平均値を算出してみた。
 
     /usr/local/apache/bin/ab -n 1000 -c 50 http://172.19.8.122:9000/
 
-結果としてscalikejdbcの場合は  
+結果としてscalikejdbcの場合は
+
 * Requests per second:  554.473
+
 scalikejdbc-asyncの場合は
+
 * Requests per second:  919.9
 
 
