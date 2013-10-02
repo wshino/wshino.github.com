@@ -13,11 +13,28 @@ PostgreSQLだとplay-sampleがうまく動くんだけどMySQLのときはinsert
 試してみたらそれでいけた。
 
 こんなかんじに書いていたのを
-<script src="https://gist.github.com/wshino/6790797.js"></script>
+```scala
+def create(createdAt: DateTime = DateTime.now)(
+implicit session: AsyncDBSession = AsyncDB.sharedSession, cxt: EC = ECGlobal): Future[Log] = {
+  for {
+    id <- withSQL {
+      insert.into(Log).namedValues(column.createdAt -> createdAt)
+    }.updateAndReturnGeneratedKey.future()
+  } yield Log(id = id, createdAt = createdAt)
+}
+```
+
 
 こういうふうに変更した。
-<script src="https://gist.github.com/wshino/f5b92a23b5aa3cc373ca.js"></script>
-
+```scala
+def create(createdAt: DateTime = DateTime.now) = AsyncDB.localTx { implicit s =>
+  for {
+    id <- withSQL {
+      insert.into(Log).namedValues(column.createdAt -> createdAt)
+    }.updateAndReturnGeneratedKey.future()
+  } yield Log(id = id, createdAt = createdAt)
+}
+```
 試してみたコードはここにアップしといた。
 
 https://github.com/wshino/scalikejdbc-async-mysql
@@ -29,10 +46,10 @@ abの結果を10回取得してみて平均値を算出してみた。
 
     /usr/local/apache/bin/ab -n 1000 -c 50 http://172.19.8.122:9000/
 
-結果としてscalikejdbcの場合は
-Requests per second:  554.473
+結果としてscalikejdbcの場合は  
+* Requests per second:  554.473
 scalikejdbc-asyncの場合は
-Requests per second:  919.9
+* Requests per second:  919.9
 
 
 おおむね1.6倍ほど高速になったので満足。
