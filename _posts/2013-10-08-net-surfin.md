@@ -22,7 +22,8 @@ tags: []
 
 * <https://github.com>
 
-githubにレポジトリがあればwatchしておく。開発の動きや困った人がいるかもしれない。
+githubにレポジトリがあればwatchしておく。開発の動きがわかったり困ってissueを投げている人がいるかもしれない。
+自分と同じことで悩んだりここが問題だよなーと共通意識が芽生えるかも。
 
 * <https://groups.google.com>
 
