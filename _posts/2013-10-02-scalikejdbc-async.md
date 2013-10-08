@@ -9,11 +9,14 @@ tags: []
 
 scalikejdbc-asyncでノンブロッキングなMySQLへのアクセスができると聞いて試してみた。
 <https://github.com/seratch/scalikejdbc-async>
+
 seratch さんが Activate にインスパイアされて作ったそうだ。
 
 業務でPlay2を使うことがあるので今回の検証には
+
 * Playframework 2.1.3
 * MySQL 5.6.13(homebrewでいれたやつ)
+
 を使ってみた。githubにはplayで使う場合のsampleもあって親切。
 
 コネクションプールまわりは初期値とMaxを100にして新しい生成コストが発生しないようにした。
