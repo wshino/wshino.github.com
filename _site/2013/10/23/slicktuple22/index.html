@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7 ie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8 ie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9 ie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>slickでtuple22問題を回避する</title>
+	<meta name="author" content="shinohara wataru">
+	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="slickでtuple22問題を回避する" type="application/atom+xml">
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
+</head>
+<body>
+
+<div id="page" class="hentry">
+	<header class="the-header">
+		<div class="unit-head">
+			<div class="unit-inner unit-head-inner">
+				<nav class="nav-global">
+					<ul>
+						<li class="logo"><a href="/">zentai</a></li>
+						<li class="archive"><a href="/archive.html">archive</a></li>
+						<li class="page"><a href="/pages.html">pages</a></li>
+						<li class="category"><a href="/categories.html">categories</a></li>
+						<li class="tag"><a href="/tags.html">tags</a></li>
+						<li class="forkme"><div><iframe src="http://markdotto.github.com/github-buttons/github-btn.html?user=plusjade&repo=jekyll-bootstrap&type=fork&count=true"
+									allowtransparency="true" frameborder="0" scrolling="0" width="95px" height="20px"></iframe></div></li>
+					</ul>
+				</nav>
+			</div><!-- unit-inner -->
+		</div><!-- unit-head -->
+	</header>
+	<div class="body" role="main">
+		<div class="unit-body">
+			<div class="unit-inner unit-body-inner">
+				<div class="entry-content">
+					
+<article class="unit-article layout-post">
+	<div class="unit-inner unit-article-inner">
+		<div class="content">
+			<header>
+				<div class="unit-head">
+					<div class="unit-inner unit-head-inner">
+						<h1 class="h2 entry-title">slickでtuple22問題を回避する</h1>
+					</div><!-- unit-inner -->
+				</div><!-- unit-head -->
+			</header>
+
+			<div class="bd">
+				<div class="entry-content">
+					<p>以前、社内用に書いたものから転載。
+以前Playframework1.2.5で作った管理ツールをリプレイスするときにtuple22問題にあたったのでその回避策を。
+Scalaの新しいバージョンはtupleの数も増えるらしいし、こんな問題は起きないようになるのかも。</p>
+
+<p>Slickは非常に直感的で使いやすいORMだが、タプルベースの実装のため、22カラムまでしか扱うことができない。</p>
+
+<p>回避策は主に3つあって</p>
+
+<ol>
+<li><p>テーブルを分割する</p></li>
+<li><p>タプルをネストさせる</p></li>
+<li><p>必要なカラムだけをクラス定義に含める</p></li>
+</ol>
+
+<p>(引用 <a href="http://d.hatena.ne.jp/tototoshi/20121204/1354615421">http://d.hatena.ne.jp/tototoshi/20121204/1354615421</a>)</p>
+
+<p>リプレイスということもあり、すでに23カラム以上あるテーブルが存在していたので、タプルをネストする方法にした。
+泥臭い方法だけど、「22カラムまでか〜」という理由で採用を見送られていることもあるかもなので、いける方法はあるよとの参考になれば。</p>
+
+<hr>
+
+<p>レポートテーブルの中には1時間ごとのクリック数がはいっている。</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">mysql&gt; desc report;
++------------+-------------+------+-----+---------+----------------+
+| Field      | Type        | Null | Key | Default | Extra          |
++------------+-------------+------+-----+---------+----------------+
+| id         | bigint(20)  | NO   | PRI | NULL    | auto_increment |
+| article_id | bigint(20)  | YES  | MUL | NULL    |                |
+| click00    | bigint(20)  | YES  |     | NULL    |                |
+| click01    | bigint(20)  | YES  |     | NULL    |                |
+| click02    | bigint(20)  | YES  |     | NULL    |                |
+| click03    | bigint(20)  | YES  |     | NULL    |                |
+| click04    | bigint(20)  | YES  |     | NULL    |                |
+| click05    | bigint(20)  | YES  |     | NULL    |                |
+| click06    | bigint(20)  | YES  |     | NULL    |                |
+| click07    | bigint(20)  | YES  |     | NULL    |                |
+| click08    | bigint(20)  | YES  |     | NULL    |                |
+| click09    | bigint(20)  | YES  |     | NULL    |                |
+| click10    | bigint(20)  | YES  |     | NULL    |                |
+| click11    | bigint(20)  | YES  |     | NULL    |                |
+| click12    | bigint(20)  | YES  |     | NULL    |                |
+| click13    | bigint(20)  | YES  |     | NULL    |                |
+| click14    | bigint(20)  | YES  |     | NULL    |                |
+| click15    | bigint(20)  | YES  |     | NULL    |                |
+| click16    | bigint(20)  | YES  |     | NULL    |                |
+| click17    | bigint(20)  | YES  |     | NULL    |                |
+| click18    | bigint(20)  | YES  |     | NULL    |                |
+| click19    | bigint(20)  | YES  |     | NULL    |                |
+| click20    | bigint(20)  | YES  |     | NULL    |                |
+| click21    | bigint(20)  | YES  |     | NULL    |                |
+| click22    | bigint(20)  | YES  |     | NULL    |                |
+| click23    | bigint(20)  | YES  |     | NULL    |                |
+| date       | date        | YES  |     | NULL    |                |
+| referer    | varchar(64) | NO   |     | none    |                |
++------------+-------------+------+-----+---------+----------------+
+28 rows in set (0.05 sec)
+</code></pre></div>
+<p>カラムを表現するにはtupleが足りないのでtupleをネストした状態でcase classを宣言する。</p>
+<div class="highlight"><pre><code class="scala language-scala" data-lang="scala"><span class="k">case</span> <span class="k">class</span> <span class="nc">ReportClick</span><span class="o">(</span><span class="n">click00</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click01</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click02</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click03</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click04</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click05</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click06</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click07</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click08</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click09</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click10</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                       <span class="n">click11</span><span class="k">:</span> <span class="kt">Long</span><span class="o">)</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Report</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                  <span class="n">articleId</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span>
+                  <span class="n">clickAm</span><span class="k">:</span> <span class="kt">ReportClick</span><span class="o">,</span>
+                  <span class="n">clickPm</span><span class="k">:</span> <span class="kt">ReportClick</span><span class="o">,</span>
+                  <span class="n">date</span><span class="k">:</span> <span class="kt">java.sql.Date</span><span class="o">)</span>
+</code></pre></div>
+<p>カラムは全部宣言する必要がある。</p>
+<div class="highlight"><pre><code class="scala language-scala" data-lang="scala"><span class="k">object</span> <span class="nc">Reports</span> <span class="k">extends</span> <span class="nc">BaseModel</span><span class="o">.</span><span class="nc">BaseTable</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;report&quot;</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">import</span> <span class="nn">BaseModel.profile.simple._</span>
+
+  <span class="k">def</span> <span class="n">id</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;id&quot;</span><span class="o">,</span> <span class="n">O</span> <span class="nc">PrimaryKey</span><span class="o">,</span> <span class="n">O</span> <span class="nc">AutoInc</span><span class="o">,</span> <span class="n">O</span> <span class="nc">DBType</span> <span class="s">&quot;bigint(20)&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">articleId</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;article_id&quot;</span><span class="o">,</span> <span class="n">O</span> <span class="nc">DBType</span> <span class="s">&quot;bigint(20)&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click00</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click00&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click01</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click01&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click02</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click02&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click03</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click03&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click04</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click04&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click05</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click05&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click06</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click06&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click07</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click07&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click08</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click08&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click09</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click09&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click10</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click10&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click11</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click11&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click12</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click12&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click13</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click13&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click14</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click14&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click15</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click15&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click16</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click16&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click17</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click17&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click18</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click18&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click19</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click19&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click20</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click20&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click21</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click21&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click22</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click22&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">click23</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;click23&quot;</span><span class="o">)</span>
+  <span class="k">def</span> <span class="n">date</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">java.sql.Date</span><span class="o">](</span><span class="s">&quot;date&quot;</span><span class="o">,</span> <span class="n">O</span> <span class="nc">DBType</span> <span class="s">&quot;date&quot;</span><span class="o">)</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>ケースクラスへのマッピングメソッドはオーバーライドする必要があるので適当に書く。
+allメソッドがケースクラスであるタプルとその内包するタプルの要素のマッピング。</p>
+<div class="highlight"><pre><code class="scala language-scala" data-lang="scala"><span class="k">def</span> <span class="o">*</span> <span class="k">=</span> <span class="n">id</span>
+
+<span class="k">def</span> <span class="n">all</span> <span class="k">=</span> <span class="o">(</span>
+  <span class="n">id</span><span class="o">,</span>
+  <span class="n">articleId</span><span class="o">,</span>
+  <span class="o">(</span><span class="n">click00</span><span class="o">,</span> <span class="n">click01</span><span class="o">,</span> <span class="n">click02</span><span class="o">,</span> <span class="n">click03</span><span class="o">,</span> <span class="n">click04</span><span class="o">,</span> <span class="n">click05</span><span class="o">,</span>
+   <span class="n">click06</span><span class="o">,</span> <span class="n">click07</span><span class="o">,</span> <span class="n">click08</span><span class="o">,</span> <span class="n">click09</span><span class="o">,</span> <span class="n">click10</span><span class="o">,</span> <span class="n">click11</span><span class="o">),</span>
+  <span class="o">(</span><span class="n">click12</span><span class="o">,</span> <span class="n">click13</span><span class="o">,</span> <span class="n">click14</span><span class="o">,</span> <span class="n">click15</span><span class="o">,</span> <span class="n">click16</span><span class="o">,</span> <span class="n">click17</span><span class="o">,</span>
+   <span class="n">click18</span><span class="o">,</span> <span class="n">click19</span><span class="o">,</span> <span class="n">click20</span><span class="o">,</span> <span class="n">click21</span><span class="o">,</span> <span class="n">click22</span><span class="o">,</span> <span class="n">click23</span><span class="o">),</span>
+  <span class="n">date</span>
+  <span class="o">)</span>
+
+<span class="k">override</span> <span class="k">def</span> <span class="n">create_*</span> <span class="k">=</span>
+  <span class="n">all</span><span class="o">.</span><span class="n">shaped</span><span class="o">.</span><span class="n">packedNode</span><span class="o">.</span><span class="n">collect</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nc">Select</span><span class="o">(</span><span class="nc">Ref</span><span class="o">(</span><span class="nc">IntrinsicSymbol</span><span class="o">(</span><span class="n">in</span><span class="o">)),</span> <span class="n">f</span><span class="k">:</span> <span class="kt">FieldSymbol</span><span class="o">)</span> <span class="k">if</span> <span class="n">in</span> <span class="o">==</span> <span class="k">this</span> <span class="k">=&gt;</span> <span class="n">f</span>
+  <span class="o">}.</span><span class="n">toSeq</span><span class="o">.</span><span class="n">distinct</span>
+</code></pre></div>
+<p>できあがったつらいinsert</p>
+<div class="highlight"><pre><code class="scala language-scala" data-lang="scala">  <span class="k">def</span> <span class="n">insert</span><span class="o">(</span><span class="n">report</span><span class="k">:</span> <span class="kt">Report</span><span class="o">)(</span><span class="k">implicit</span> <span class="n">session</span><span class="k">:</span> <span class="kt">Session</span><span class="o">)</span> <span class="k">=</span> <span class="o">{</span>
+    <span class="c1">// カウント数を取得する</span>
+    <span class="k">val</span> <span class="n">inc</span> <span class="k">=</span> <span class="k">this</span><span class="o">.</span><span class="n">count</span><span class="o">()</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">val</span> <span class="n">data</span> <span class="k">=</span> <span class="o">(</span><span class="n">inc</span><span class="o">.</span><span class="n">toLong</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">articleId</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">referer</span><span class="o">,</span>
+      <span class="o">(</span><span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click00</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click01</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click02</span><span class="o">,</span>
+       <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click03</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click04</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click05</span><span class="o">,</span>
+       <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click06</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click07</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click08</span><span class="o">,</span>
+       <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click09</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click10</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickAm</span><span class="o">.</span><span class="n">click11</span><span class="o">),</span>
+      <span class="o">(</span><span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click00</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click01</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click02</span><span class="o">,</span>
+       <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click03</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click04</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click05</span><span class="o">,</span>
+       <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click06</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click07</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click08</span><span class="o">,</span>
+       <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click09</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click10</span><span class="o">,</span> <span class="n">report</span><span class="o">.</span><span class="n">clickPm</span><span class="o">.</span><span class="n">click11</span><span class="o">),</span>
+      <span class="n">report</span><span class="o">.</span><span class="n">date</span><span class="o">)</span>
+    <span class="nc">Reports</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">shaped</span><span class="o">.</span><span class="n">insert</span><span class="o">(</span><span class="n">data</span><span class="o">)</span>
+    <span class="n">inc</span><span class="o">.</span><span class="n">toLong</span>
+  <span class="o">}</span>
+</code></pre></div>
+<p>findはオーバーライドしたallを使って書く</p>
+<div class="highlight"><pre><code class="scala language-scala" data-lang="scala"><span class="k">def</span> <span class="n">findAll</span><span class="o">()(</span><span class="k">implicit</span> <span class="n">session</span><span class="k">:</span> <span class="kt">Session</span><span class="o">)</span> <span class="k">=</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">q1</span> <span class="k">=</span> <span class="nc">Reports</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">all</span><span class="o">)</span>
+    <span class="n">q1</span><span class="o">.</span><span class="n">list</span><span class="o">()</span>
+  <span class="o">}</span>
+</code></pre></div>
+<p>クリック数の合計値を算出して合計値でソートしている処理の例</p>
+<div class="highlight"><pre><code class="scala language-scala" data-lang="scala">  <span class="k">def</span> <span class="n">sortByClickSum</span><span class="o">(</span><span class="n">l</span><span class="k">:</span> <span class="kt">List</span><span class="o">[(</span><span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">String</span>, <span class="o">(</span><span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span><span class="o">)</span>
+    , <span class="o">(</span><span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span>, <span class="kt">Long</span><span class="o">)</span>, <span class="kt">java.sql.Date</span><span class="o">)])</span> <span class="k">=</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">res</span> <span class="k">=</span> <span class="n">l</span><span class="o">.</span><span class="n">map</span><span class="o">{</span> <span class="n">r</span> <span class="k">=&gt;</span>
+      <span class="k">val</span> <span class="n">click</span> <span class="k">=</span> <span class="n">r</span><span class="o">.</span><span class="n">_4</span><span class="o">.</span><span class="n">productIterator</span><span class="o">.</span><span class="n">toList</span> <span class="o">:::</span> <span class="n">r</span><span class="o">.</span><span class="n">_5</span><span class="o">.</span><span class="n">productIterator</span><span class="o">.</span><span class="n">toList</span>
+      <span class="k">val</span> <span class="n">total</span> <span class="k">=</span> <span class="n">click</span><span class="o">.</span><span class="n">reduceLeftOption</span><span class="o">((</span><span class="n">z</span><span class="o">,</span> <span class="n">n</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">z</span><span class="o">.</span><span class="n">asInstanceOf</span><span class="o">[</span><span class="kt">Long</span><span class="o">]</span> <span class="o">+</span> <span class="n">n</span><span class="o">.</span><span class="n">asInstanceOf</span><span class="o">[</span><span class="kt">Long</span><span class="o">])</span> <span class="k">match</span> <span class="o">{</span>
+        <span class="k">case</span> <span class="nc">Some</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Long</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span>
+        <span class="k">case</span> <span class="nc">None</span> <span class="k">=&gt;</span> <span class="mi">0</span>
+      <span class="o">}</span>
+
+      <span class="o">(</span><span class="n">r</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span> <span class="n">total</span><span class="o">)</span>
+    <span class="o">}</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">).</span><span class="n">reverse</span>
+  <span class="o">}</span>
+</code></pre></div>
+<p>結論としてはおすすめしない。Slickのすっきり書ける感もない。
+どうしてもslickを使っていてtuple足りないといったときの苦肉の策。
+前もって22カラムを超えることが判明しているならば、別の方法を考えよう。</p>
+
+<p>抜粋的なソースはこちら。</p>
+
+<p><a href="https://github.com/wshino/avoid-tuple22-problem-for-play-slick">https://github.com/wshino/avoid-tuple22-problem-for-play-slick</a></p>
+
+					<div class="meta">
+						<p class="date-publish">
+							Published: 
+							<date class="date-pub" title="2013-10-23T00:00:00+09:00" datetime="2013-10-23T00:00:00+09:00" pubdate>
+							<span class="month"><abbr>October</abbr></span>
+							<span class="day">23</span>
+							<span class="year">2013</span>
+							</date>
+						</p>
+						<ul class="list-category list-linear">
+							<li class="list-head">category: </li>
+							
+							
+
+
+  
+    
+  
+
+
+						</ul>
+						<ul class="list-tag list-linear">
+							<li class="list-head">tags: </li>
+							
+							
+
+
+  
+    
+  
+
+
+
+						</ul>
+					</div><!-- meta -->
+				</div><!-- entry-content -->
+				<div class="misc-content">
+					<div class="social">
+						<ul class="list-linear">
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="wshino" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/wshino" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+						</ul>
+					</div>
+					<div class="comment">
+					
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_developer = 1;
+    var disqus_shortname = 'jekyllbootstrap'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+					</div>
+				</div><!-- misc-content -->
+			</div><!-- bd -->
+			<footer class="unit-foot">
+				<div class="unit-inner unit-foot-inner">
+					<nav class="pagination">
+						<ul>
+							
+							<li class="prev"><a class="internal" rel="prev"  href="/2013/10/08/net-surfin" title="View ゴーゴー net surfin">&laquo; ゴーゴー net surfin</a></li>
+							
+							
+							
+						</ul>
+					</nav>
+					<p class="gotop">
+						<a href="#page">Back to Top</a>
+					</p>
+				</div>
+			</footer>
+
+		</div><!-- content -->
+	</div><!-- unit-inner -->
+</article>
+
+
+				</div>
+			</div><!-- unit-inner -->
+		</div><!-- unit-body -->
+	</div><!-- body -->
+	<footer class="the-footer">
+		<div class="unit-foot">
+			<div class="unit-inner unit-foot-inner">
+				<div class="misc vcard">
+					<h4>about</h4>
+					<ul>
+						<li class="contact"><address><span class="author fn n">shinohara wataru</span> - <span class="fn email"></span></address></li>
+						<li class="github"><a href="http://github.com/wshino/" rel="me">github.com/wshino</a></li>
+						<li class="twitter"><a href="http://twitter.com/wshino/" rel="me">twitter.com/wshino</a></li>
+						<li class="rss"><a href="http://feeds.feedburner.com/">Subscribe to RSS Feed</a></li>
+					</ul>
+				</div><!-- misc -->
+				<p class="licence">
+					Theme: <a href="http://layouts-the.me">the_minimum</a> based on <a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>.<br>
+					Powered by <a href="https://github.com/mojombo/jekyll">Jekyll</a>.
+				</p>
+			</div><!-- unit-foot-inner -->
+		</div><!-- unit-foot -->
+	</footer>
+</div><!-- page -->
+<script>
+	(function(d, s) {
+		var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+		if (d.getElementById(id)) {return;}
+		js = d.createElement(s); js.src = url; js.id = id;
+		fjs.parentNode.insertBefore(js, fjs);
+		};
+	load('//platform.twitter.com/widgets.js', 'tweetjs');
+	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2013/10/23/slicktuple22" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	}(document, 'script'));
+</script>
+<script>
+/*! A fix for the iOS orientationchange zoom bug.Script by @scottjehl, rebound by @wilto. MIT License.*/
+(function(j){var i=j.document;if(!i.querySelectorAll){return}var l=i.querySelectorAll("meta[name=viewport]")[0],a=l&&l.getAttribute("content"),h=a+", maximum-scale=1.0",d=a+", maximum-scale=10.0",g=true,c=j.orientation,k=0;if(!l){return}function f(){l.setAttribute("content",d);g=true}function b(){l.setAttribute("content",h);g=false}function e(m){c=Math.abs(j.orientation);k=Math.abs(m.gamma);if(k>8&&c===0){if(g){b()}}else{if(!g){f()}}}j.addEventListener("orientationchange",f,false);j.addEventListener("deviceorientation",e,false)})(this);
+</script>
+  
+  
+</body>
+</html>
+

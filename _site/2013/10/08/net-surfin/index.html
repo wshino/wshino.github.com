@@ -7,10 +7,10 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>using ivy</title>
+	<title>ゴーゴー net surfin</title>
 	<meta name="author" content="shinohara wataru">
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="using ivy" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="ゴーゴー net surfin" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -44,98 +44,67 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">using ivy</h1>
+						<h1 class="h2 entry-title">ゴーゴー net surfin</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<h1>依存関係の解決に apache ivy を使う</h1>
+					<p>最近の自分が技術情報を見つけるときにネットサーフィンする場所を備忘録として残しておく。</p>
 
-<h2>恐怖、ビルドの仕組みがないプロジェクト</h2>
+<h3>最新情報を知りたいとき</h3>
 
-<p>とあるJavaでできたバッチ処理プロジェクトがあったのだが今までビルドの仕組みがなかった。
-開発者が各々開発環境のeclipseでビルドをして生成されたクラスファイルを本番サーバにscpしていた。
-ちょっとこれは恐ろしいことなので、
-レポジトリがCVSからGitに移行したタイミングで仕組みを変更することにした。  </p>
+<ul>
+<li><a href="http://www.infoq.com/jp/">http://www.infoq.com/jp/</a></li>
+</ul>
 
-<p>基本どの処理もcronで時間を指定してその中からJavaを実行するというものだった。
-ディレクトリ構造を変更するのが負担になると考えたので、maven化はアウト。
-ディレクトリ構造を現状の状態に保ったまま依存関係のあるjarをもってくることがやりたかったのでivyを採用。</p>
+<p>言わずと知れたInfoQ.自分は英語が読めないので日本語ばっか読んでる。
+翻訳記事を読んだあとに原典をあたることでなんとなく英語を読む勉強にもなっているような気もする。
+カンファレンスの情報や初見のFrameworkやライブラリの情報もあるし、
+自分が知りたい分野のものも過去に記事になっているかもしれない。</p>
 
-<h2>mavenと比べてよかったところ</h2>
+<h3>自分のwatchしているものを細かくしりたいとき</h3>
 
-<ol>
-<li>記述が少ない<br></li>
-<li>ディレクトリ構造が自由<br></li>
-<li>antの依存関係だけを解決する仕組みなので好きなターゲットを作成できる。<br>
-というかんじ。<br></li>
-</ol>
+<ul>
+<li><a href="https://github.com">https://github.com</a></li>
+</ul>
 
-<h2>Jenkinsサーバの設定</h2>
+<p>githubにレポジトリがあればwatchしておく。開発の動きがわかったり困ってissueを投げている人がいるかもしれない。
+自分と同じことで悩んだりここが問題だよなーと共通意識が芽生えるかも。</p>
 
-<p>どうせだからJenkinsにビルドとリリースをお任せする。<br>
-CentOSに標準のJenkins入れてant1.8が入っている状況だと  </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">/usr/local/ant
-</code></pre></div>
-<p>がantのディレクトリなので
-<a href="http://ant.apache.org/ivy/download.cgi">http://ant.apache.org/ivy/download.cgi</a><br>
-上記のページから適当なバイナリをダウンロードしてファイルを展開したらivy-*.jarを  </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">/usr/local/ant/lib
-</code></pre></div>
-<p>配下に入れる。これでantからivyを呼ぶことができる。</p>
+<ul>
+<li><a href="https://groups.google.com">https://groups.google.com</a></li>
+</ul>
 
-<h2>使い方</h2>
+<p>検索すればだいたいの自分の興味にたいしてユーザーグループがある。
+コミッタの方をはじめよく使っているユーザーの書き込みが多いので、困ったことがあれば投稿して聞くこともできそう。
+(投稿したことないけど)。
+個人的にはPlayとSlick, ScalikeJDBC, SBT, 日本Playframeworkユーザー会, 日本Scalaユーザーズグループなどを覗いている。あとhaskell-jpか。</p>
 
-<p>サンプルの丸パクリだけどbuild.xmlに</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;project name=&quot;batch&quot; default=&quot;compile&quot; xmlns:ivy=&quot;antlib:org.apache.ivy.ant&quot;&gt;
-</code></pre></div>
-<p>プロジェクト名をきめるところにxmlns:ivy=を記述する。</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;target name=&quot;resolve&quot; description=&quot;--&gt; retreive dependencies with ivy&quot;&gt;
-    &lt;ivy:retrieve/&gt;
-&lt;/target&gt;
-</code></pre></div>
-<p>resolveってターゲットを作成して</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;target name=&quot;compile&quot; depends=&quot;resolve&quot; description=&quot;--&gt; compile the project&quot;&gt;
-...
-&lt;/target&gt;
-</code></pre></div>
-<p>こんなかんじで各ターゲットにdepends=&quot;resolve&quot;と書いてあげるとターゲットが実行される際にivyの依存解決が動作する。
-依存するモジュールはivy.xmlというファイルを作成して、中身を</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;ivy-module version=&quot;2.0&quot;&gt;
-    &lt;info organisation=&quot;jp.ameba&quot; module=&quot;official-batch&quot;/&gt;
-    &lt;dependencies&gt;
-        &lt;dependency org=&quot;commons-codec&quot; name=&quot;commons-codec&quot; rev=&quot;1.3&quot;/&gt;
-        &lt;dependency org=&quot;commons-lang&quot; name=&quot;commons-lang&quot; rev=&quot;2.3&quot;/&gt;
-        ...
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre></div>
-<p>dependenciesの子にdependencyという要素を追記していく。
-orgがmavenでいうところのgroupIdでnameがartifactId、revがversionに対応する。
-今回のプロジェクトはSeasar2を使っていたので中央レポジトリ以外の箇所も見る必要がある。
-そんなときはivysettings.xmlというファイルを作成して</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;ivysettings&gt;
-    &lt;settings defaultResolver=&quot;chained&quot;/&gt;
-    &lt;resolvers&gt;
-        &lt;chain name=&quot;chained&quot; returnFirst=&quot;true&quot;&gt;
-            &lt;ibiblio name=&quot;seasar&quot; m2compatible=&quot;true&quot; root=&quot;http://maven.seasar.org/maven2/&quot; /&gt;
-            &lt;ibiblio name=&quot;ibiblio&quot; m2compatible=&quot;true&quot;/&gt;
-        &lt;/chain&gt;
-    &lt;/resolvers&gt;
-&lt;/ivysettings&gt;
-</code></pre></div>
-<p>resolvers->chain->ibiblioという要素を追記してあげるとそっちのレポジトリも見てくれる。</p>
+<h3>開発してて困ったとき</h3>
 
-<p>結論としてはmavenにするのはコストがかかるし、ダルいなというときに依存関係解決だけに機能をしぼってantとミックスして使うのはありだと思う。</p>
+<ul>
+<li><a href="http://stackoverflow.com">http://stackoverflow.com</a></li>
+</ul>
+
+<p>作っているときに未知のエラーで困った時はすでに人柱がいないか検索する。
+だいたいは同じようなことで困っている人が世界のどこかにいるからその人の解決策を参考にする。
+それで無理ならソース読んだり、上記のコミュニティで発言したり、知ってそうな人になんとか聞いてみる。
+Twitterでつぶやいて運がよければ誰かが拾ってくれるかもしれない。</p>
+
+<h3>あとは</h3>
+
+<p>界隈の人のブログやソースをネットサーフィン。</p>
+
+<p><strong>情報源としていいものがあれば教えて下さい。</strong></p>
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2013-07-17T00:00:00+09:00" datetime="2013-07-17T00:00:00+09:00" pubdate>
-							<span class="month"><abbr>July</abbr></span>
-							<span class="day">17</span>
+							<date class="date-pub" title="2013-10-08T00:00:00+09:00" datetime="2013-10-08T00:00:00+09:00" pubdate>
+							<span class="month"><abbr>October</abbr></span>
+							<span class="day">08</span>
 							<span class="year">2013</span>
 							</date>
 						</p>
@@ -158,12 +127,6 @@ orgがmavenでいうところのgroupIdでnameがartifactId、revがversionに�
 
 
   
-     
-    	<li><a href="/tags.html#ivy-ref">ivy <span>1</span></a></li>
-     
-    	<li><a href="/tags.html#java-ref">java <span>1</span></a></li>
-     
-    	<li><a href="/tags.html#ant-ref">ant <span>1</span></a></li>
     
   
 
@@ -209,13 +172,13 @@ orgがmavenでいうところのgroupIdでnameがartifactId、revがversionに�
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2013/07/17/hello-world" title="View Hello World">&laquo; Hello World</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2013/10/02/scalikejdbc-async" title="View scalikejdbc asyncを試してみた">&laquo; scalikejdbc asyncを試してみた</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2013/07/24/githubio-" title="View github.io の使い方">github.io の使い方 &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2013/10/23/slicktuple22" title="View slickでtuple22問題を回避する">slickでtuple22問題を回避する &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -263,7 +226,7 @@ orgがmavenでいうところのgroupIdでnameがartifactId、revがversionに�
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2013/07/17/using-ivy" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2013/10/08/net-surfin" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>
