@@ -11,6 +11,7 @@ http://wshino.github.io/rss.xml
 http://wshino.github.io/sitemap.txt
 http://wshino.github.io/tags.html
 
+http://wshino.github.io/2013/12/16/play-scala-advent-calendar
 http://wshino.github.io/2013/10/23/slicktuple22
 http://wshino.github.io/2013/10/08/net-surfin
 http://wshino.github.io/2013/10/02/scalikejdbc-async

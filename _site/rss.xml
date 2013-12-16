@@ -5,15 +5,93 @@
         <description>zentai - shinohara wataru</description>
         <link>http://wshino.github.io</link>
         <link>http://wshino.github.io</link>
-        <lastBuildDate>2013-10-24T10:36:04+09:00</lastBuildDate>
-        <pubDate>2013-10-24T10:36:04+09:00</pubDate>
+        <lastBuildDate>2013-12-16T10:32:17+09:00</lastBuildDate>
+        <pubDate>2013-12-16T10:32:17+09:00</pubDate>
         <ttl>1800</ttl>
 
 
         <item>
+                <title>play scala advent calendar</title>
+                <description>&lt;p&gt;これは Play framework 2.x Scala Advent Calendar 2013 の 16 日目です。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.adventar.org/calendars/114&quot;&gt;http://www.adventar.org/calendars/114&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;今年作ったplay2の社内プロジェクトのscalikejdbc-asyncを使ってパフォーマンスあがったーやったー
+という結果を書きたかったんだけど盛大になにもしてないので、
+いままで作っててはまったところとかをつらつらとまとめることにしました。&lt;/p&gt;
+
+&lt;h3&gt;前提&lt;/h3&gt;
+
+&lt;p&gt;そもそもなんのためにこのAPIを作ったかというと各サーバー間で昔から暗黙の了解のように行われていたファイル渡しをやめさせるため。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;どこから送ってきているかわからない。(netstatで地道に確認)&lt;/li&gt;
+&lt;li&gt;どこに送ってどこに送り洩れがあるか把握できない。同じようなファイルがたくさんある。&lt;/li&gt;
+&lt;li&gt;そもそもどこに配信処理があるか探すのが一苦労。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;という状態をやめるためだった。&lt;/p&gt;
+
+&lt;p&gt;でそれ以外のAPIもほしいよね、という要望があったのでこのプロジェクトに追加していくことにした。&lt;/p&gt;
+
+&lt;p&gt;だいたいroutesファイルを見てみたところ、だいたい30個くらい作ったようだ。&lt;/p&gt;
+
+&lt;h3&gt;問題未満、xmlファイルのパースに失敗する&lt;/h3&gt;
+
+&lt;p&gt;完全にplay関係ない問題。
+元々のジョブで生成されたxmlファイルがたまにおかしなタグを吐く。
+そのためよく読み込みに失敗している。10分更新で1日5回くらい失敗するのだけど、そんなに支障があるファイルではないので放置中。&lt;/p&gt;
+
+&lt;h3&gt;akkaのチューニングがよくわからない&lt;/h3&gt;
+
+&lt;p&gt;CPUに負荷がかかりきる前にスループットの上限がくる。
+いまだにLAスカスカな状態でアプリケーションサーバーが4台稼働している。
+ここはyuroyoroさんも仰っていたけど同期処理をうまくさばけばパフォーマンス改善できるかもしれない。
+で、そのためにはscalikejdbc-asyncなどを使ってみようという話。
+今回やろうとしたけどできなかった。来年やる。
+前やった結果は以下のとおり。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://wshino.github.io/2013/10/02/scalikejdbc-async/&quot;&gt;http://wshino.github.io/2013/10/02/scalikejdbc-async/&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3&gt;slick-joda-mapperでbetweenができなかった&lt;/h3&gt;
+
+&lt;p&gt;解決済み。&lt;/p&gt;
+
+&lt;p&gt;tototoshiさんが作ってくださった日付カラムをjodatimeで使えるナイスなプラグイン。
+ただ、開発当初に使っていたslick-joda-mapperは0.1.0で、
+between句に使うことができない、ということを実装の最後らへんで気がついてしまった。
+粛々とカラム定義をorg.joda.DateTimeからjava.sql.Timestampに書き換えていった。
+なお、現在の最新版では問題なくbetweenできるようになっているので当初の予定どおりの動きをしている。&lt;/p&gt;
+
+&lt;h1&gt;slickが吐くクエリがいけてない&lt;/h1&gt;
+
+&lt;p&gt;mapperは基本的にほとんどlifted embeddingで記述した。
+しかし、サービスインしたあとデータ量が増えてきて、JOINしているクエリがえらい遅いことに気がついた。
+selectStatementで発行されているクエリを見てみると一度のselectなのにselect句が3つくらいあって吹いた。
+具体的にはこの方と同じ状況。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://jumble-note.blogspot.jp/2013/07/scalaslick-slick.html&quot;&gt;http://jumble-note.blogspot.jp/2013/07/scalaslick-slick.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;複雑なクエリを使いたい場合は最初からplain sqlでいったほうがいいと思う。
+slick2でも改善してないぽい。&lt;/p&gt;
+
+&lt;h3&gt;総評&lt;/h3&gt;
+
+&lt;p&gt;なんか結局困ったのってDBまわりだった気がする。&lt;/p&gt;
+
+&lt;p&gt;それ以外は開発速度はあがるしバグも減るし、for内包も素敵だし&lt;/p&gt;
+
+&lt;p&gt;いいパフォーマンスで1.2億req/dayさばけてるから使ってよかった。&lt;/p&gt;
+</description>
+                <link>http://wshino.github.io/2013/12/16/play-scala-advent-calendar</link>
+                <guid>http://wshino.github.io/2013/12/16/play-scala-advent-calendar</guid>
+                <pubDate>2013-12-16T00:00:00+09:00</pubDate>
+        </item>
+
+        <item>
                 <title>slickでtuple22問題を回避する</title>
                 <description>&lt;p&gt;以前、社内用に書いたものから転載。
-以前Playframework1.2.5で作った管理ツールをリプレイスするときにtuple22問題にあたったのでその回避策を。
+以前Playframework1.2.5で作った管理ツールをplay2.1.*でリプレイスするときにtuple22問題にあたったのでその回避策を。
 Scalaの新しいバージョンはtupleの数も増えるらしいし、こんな問題は起きないようになるのかも。&lt;/p&gt;
 
 &lt;p&gt;Slickは非常に直感的で使いやすいORMだが、タプルベースの実装のため、22カラムまでしか扱うことができない。&lt;/p&gt;
